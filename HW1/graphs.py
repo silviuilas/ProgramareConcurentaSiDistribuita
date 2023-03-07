@@ -22,14 +22,6 @@ if __name__ == '__main__':
     data = pd.read_csv("test_results.csv")
     data = data.sample(500)
 
-    # Create a bar chart of transmission time by mechanism used
-    plt.bar(data['Mechanism Used'], data['Transmission Time'])
-    plt.title('Transmission Time by Mechanism Used')
-    plt.xlabel('Mechanism Used')
-    plt.ylabel('Transmission Time (seconds)')
-    plt.savefig('Transmission Time by Mechanism Used')
-    plt.show()
-
     # Create a scatter plot of Transmission Time by Message Size, coloring the points differently based on the Mechanism Used
     colors = {'streaming': 'blue', 'stop-and-wait': 'red'}
     columnUsed = 'Mechanism Used'
