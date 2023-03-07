@@ -30,3 +30,6 @@ In terms of the options for the client/server, the program allows for the follow
 
 ![Transmission Time by Message Size and Mechanism Used](Number of Bytes Sent by Protocol Used.png)
 
+## Conclusion
+
+Using streaming as the primary option may appear to be the better choice, however, it is important to note that the test does not take into account the potential overflow of the server buffer and the possibility of losing data. In high-performance, critical applications, it is necessary to find a suitable compromise between the two options. 
