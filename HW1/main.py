@@ -5,10 +5,10 @@ import time
 from queue import Queue
 
 
-def send_data(q, protocol, message_size, mechanism):
+def send_data(q, protocol, buffer_size, mechanism):
     host = 'localhost'
     port = 12345
-    buffer_size = 1024
+    message_size = 100000
     message = b'0' * message_size
 
     time.sleep(0.05)
@@ -21,18 +21,12 @@ def send_data(q, protocol, message_size, mechanism):
 
     start_time = time.monotonic()
 
-    if mechanism == 'streaming':
-        num_packets = ((message_size - 1) // buffer_size) + 1
-        for i in range(num_packets):
-            start = i * buffer_size
-            end = min((i + 1) * buffer_size, message_size)
-            s.send(message[start:end])
-    elif mechanism == 'stop-and-wait':
-        num_packets = ((message_size - 1) // buffer_size) + 1
-        for i in range(num_packets):
-            start = i * buffer_size
-            end = min((i + 1) * buffer_size, message_size)
-            s.send(message[start:end])
+    num_packets = ((message_size - 1) // buffer_size) + 1
+    for i in range(num_packets):
+        start = i * buffer_size
+        end = min((i + 1) * buffer_size, message_size)
+        s.send(message[start:end])
+        if mechanism == 'stop-and-wait':
             s.recv(buffer_size)
 
     end_time = time.monotonic()
@@ -43,10 +37,10 @@ def send_data(q, protocol, message_size, mechanism):
     q.put((transmission_time, message_size))
 
 
-def receive_data(q, protocol, message_size, mechanism):
+def receive_data(q, protocol, buffer_size, mechanism):
     host = 'localhost'
     port = 12345
-    buffer_size = 1024
+    message_size = 100000
 
     if protocol == 'UDP':
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -69,13 +63,16 @@ def receive_data(q, protocol, message_size, mechanism):
         s.bind((host, port))
         s.listen(1)
         conn, addr = s.accept()
-        while True:
-            packet = conn.recv(buffer_size)
-            if not packet:
-                break
-            data += packet
-            if mechanism == 'stop-and-wait':
-                conn.sendall(b'ack')
+        try:
+            while True:
+                packet = conn.recv(buffer_size)
+                if not packet:
+                    break
+                data += packet
+                if mechanism == 'stop-and-wait':
+                    conn.sendall(b'ack')
+        except:
+            print("Died")
         conn.close()
     s.close()
     q.put(len(data))
@@ -85,7 +82,7 @@ def generate_message_sizes():
     arr = []
     start = 1
     step = 1000
-    while start <= 65535 * 128:
+    while start <= 65535:
         arr.append(start)
         start += step
     return arr
@@ -106,13 +103,13 @@ def save_test_results(data):
 
 def run_tests():
     protocols = ['UDP', 'TCP']
-    message_sizes = generate_message_sizes()
+    buffer_sizes = generate_message_sizes()
     mechanisms = ['streaming', 'stop-and-wait']
 
-    data = [["Protocol", "Message Size", "Mechanism Used", "Transmission Time", "Number of Sent Bytes",
+    data = [["Protocol", "Buffer Size", "Mechanism Used", "Transmission Time", "Number of Sent Bytes",
              "Number of Received Bytes"]]
     i = 0
-    for message_size in message_sizes:
+    for message_size in buffer_sizes:
         for protocol in protocols:
             for mechanism in mechanisms:
                 q1 = Queue()
@@ -128,7 +125,7 @@ def run_tests():
                 bytes_received = q2.get()
 
                 print('Protocol Used:', protocol)
-                print('Message Size:', message_size)
+                print('Buffer Size: ', message_size)
                 print('Mechanism Used:', mechanism)
                 print('Transmission Time:', transmission_time)
                 print('Number of Sent Bytes:', bytes_sent)
