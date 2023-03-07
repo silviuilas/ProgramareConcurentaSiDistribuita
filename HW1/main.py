@@ -11,7 +11,7 @@ def send_data(q, protocol, message_size, mechanism):
     buffer_size = 1024
     message = b'0' * message_size
 
-    time.sleep(1)
+    time.sleep(0.05)
     if protocol == 'UDP':
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     else:
@@ -48,9 +48,13 @@ def receive_data(q, protocol, message_size, mechanism):
     port = 12345
     buffer_size = 1024
 
-    data = b''
     if protocol == 'UDP':
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    else:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    data = b''
+    if protocol == 'UDP':
         s.bind((host, port))
         if mechanism == 'streaming':
             while len(data) < message_size:
@@ -62,7 +66,6 @@ def receive_data(q, protocol, message_size, mechanism):
                 s.sendto(b'ack', addr)
                 data += packet
     else:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((host, port))
         s.listen(1)
         conn, addr = s.accept()
@@ -82,7 +85,7 @@ def generate_message_sizes():
     arr = []
     start = 1
     step = 1000
-    while start <= 65535:
+    while start <= 65535 * 128:
         arr.append(start)
         start += step
     return arr
@@ -108,8 +111,9 @@ def run_tests():
 
     data = [["Protocol", "Message Size", "Mechanism Used", "Transmission Time", "Number of Sent Bytes",
              "Number of Received Bytes"]]
-    for protocol in protocols:
-        for message_size in message_sizes:
+    i = 0
+    for message_size in message_sizes:
+        for protocol in protocols:
             for mechanism in mechanisms:
                 q1 = Queue()
                 q2 = Queue()
@@ -131,6 +135,9 @@ def run_tests():
                 print('Number of Received Bytes:', bytes_received)
                 print()
                 data.append([protocol, message_size, mechanism, transmission_time, bytes_sent, bytes_received])
+        i+=1
+        if i % 100 == 0:
+            save_test_results(data)
 
     print(">>>>>Finished<<<<<<")
     save_test_results(data)

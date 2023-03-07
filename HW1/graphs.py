@@ -20,6 +20,7 @@ def showTransmissionTimeByMessagePlot(columnUsed, colors):
 if __name__ == '__main__':
     # Load data from the CSV file
     data = pd.read_csv("test_results.csv")
+    data = data.sample(500)
 
     # Create a bar chart of transmission time by mechanism used
     plt.bar(data['Mechanism Used'], data['Transmission Time'])
