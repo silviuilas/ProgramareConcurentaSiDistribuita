@@ -22,6 +22,7 @@ In terms of the options for the client/server, the program allows for the follow
 * The program implements both streaming and stop-and-wait mechanisms, with the latter performing an acknowledgement before sending the next message.
 
 
+![Transmission Time by Mechanism Used](Transmission Time by Mechanism Used.png)
 
 ![Transmission Time by Message Size and Mechanism Used](Transmission Time by Message Size_Mechanism Used.png)
 
