@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-time Voting Application</title>
+  <style>
+    .option {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Vote for your favorite option:</h1>
+  <div id="options"></div>
+  <script>
+    async function fetchOptions() {
+      const response = await fetch('http://127.0.0.1:5000/votes');
+      const options = await response.json();
+      const optionsContainer = document.getElementById('options');
+
+      options.forEach(option => {
+        const { id, name, votes } = option;
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option';
+        optionDiv.innerHTML = `
+          <span>${name}</span>
+          <button onclick="submitVote('${id}')">Vote (current: <span id="votes-${id}">${votes}</span>)</button>
+        `;
+        optionsContainer.appendChild(optionDiv);
+      });
+    }
+
+    async function submitVote(optionId) {
+      // Mock a submitted vote and update the frontend
+      const votesElement = document.getElementById(`votes-${optionId}`);
+      const currentVotes = parseInt(votesElement.textContent);
+      votesElement.textContent = currentVotes + 1;
+    }
+
+    fetchOptions();
+  </script>
+</body>
+</html>
