@@ -16,6 +16,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 pubsub_publisher = pubsub_v1.PublisherClient()
 topic_path = pubsub_publisher.topic_path(os.environ["GOOGLE_CLOUD_PROJECT"], "vote-updates")
 
+CLOUD_FUNCTION_URL = "https://addvote-lrjz7gfh4q-uc.a.run.app"
+
 # Initialize Firestore client
 db = firestore.Client()
 
@@ -29,7 +31,8 @@ def submit_vote():
         return jsonify({"status": "error", "message": "Invalid vote option"}), 400
 
     # Increment the vote count in Firestore
-    doc_ref = db.collection('votes').document("JZsJSi2gaqUftJHPIB91").collection("options").document(vote_option)
+    poll_id = "JZsJSi2gaqUftJHPIB91"
+    doc_ref = db.collection('votes').document(poll_id).collection("options").document(vote_option)
     doc = doc_ref.get()
 
     if not doc.exists:
@@ -49,13 +52,21 @@ def submit_vote():
         'country': client_country,
         'city': client_city,
     }
-    doc_ref.collection("vote").add(vote_data)
-    new_vote_count = len(list(doc_ref.collection("vote").stream()))
 
-    vote_update = {"option": vote_option, "count": new_vote_count}
-    pubsub_publisher.publish(topic_path, json.dumps(vote_update).encode('utf-8'))
+    data = {
+        'poll_id': poll_id,  # Replace with your poll_id
+        'document_id': vote_option,
+        'payload': vote_data,
+    }
 
-    return jsonify({"status": "success"})
+    response = requests.post(CLOUD_FUNCTION_URL, json=data)
+    if response.status_code == 200 and response.text == 'Vote saved successfully!':
+        new_vote_count = len(list(doc_ref.collection("vote").stream()))
+
+        vote_update = {"option": vote_option, "count": new_vote_count}
+        pubsub_publisher.publish(topic_path, json.dumps(vote_update).encode('utf-8'))
+        return jsonify({"status": "success"})
+    return jsonify({'status': 'error', 'message': 'Failed to submit vote'}), 500
 
 
 def fetch_data_from_firestore():
