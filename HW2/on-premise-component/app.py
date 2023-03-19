@@ -2,6 +2,7 @@ import json
 import os
 import threading
 
+import requests
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -34,10 +35,23 @@ def submit_vote():
     if not doc.exists:
         return jsonify({"status": "error", "message": "Vote option not found"}), 404
 
-    new_vote_count = int(doc.to_dict()['votes']) + 1
-    doc_ref.update({'votes': new_vote_count})
+    client_ip = request.remote_addr
+    ip_api_url = f'http://ip-api.com/json/{client_ip}'
+    response = requests.get(ip_api_url).json()
+    client_timezone = response['timezone'] if response['status'] == 'success' else 'Unknown'
+    client_country = response['country'] if response['status'] == 'success' else 'Unknown'
+    client_city = response['city'] if response['status'] == 'success' else 'Unknown'
 
-    # Publish a vote update message to the Pub/Sub topic
+    # Store the vote information in Firestore
+    vote_data = {
+        'ip': client_ip,
+        'timezone': client_timezone,
+        'country': client_country,
+        'city': client_city,
+    }
+    doc_ref.collection("vote").add(vote_data)
+    new_vote_count = len(list(doc_ref.collection("vote").stream()))
+
     vote_update = {"option": vote_option, "count": new_vote_count}
     pubsub_publisher.publish(topic_path, json.dumps(vote_update).encode('utf-8'))
 
@@ -66,7 +80,7 @@ def callback(message):
 
 def subscribe_to_vote_updates():
     subscriber = pubsub_v1.SubscriberClient()
-    subscription_path = subscriber.subscription_path(os.environ["GOOGLE_CLOUD_PROJECT"], "vote-updates-subscription")
+    subscription_path = subscriber.subscription_path(os.environ["GOOGLE_CLOUD_PROJECT"], "vote-updates-sub")
 
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
     print(f"Listening for messages on {subscription_path}...")
@@ -88,5 +102,6 @@ def get_votes():
 if __name__ == "__main__":
     listener_thread = threading.Thread(target=subscribe_to_vote_updates, daemon=True)
     listener_thread.start()
-    app.run(debug=True)
+    # Remove the following line
+    # app.run(debug=True)
     socketio.run(app, host="0.0.0.0", port=5001, allow_unsafe_werkzeug=True)

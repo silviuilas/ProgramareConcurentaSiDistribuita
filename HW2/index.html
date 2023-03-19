@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+            integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+            crossorigin="anonymous"></script>
     <title>Real-time Voting Application</title>
     <style>
         .option {
@@ -21,17 +23,26 @@
     const socket = io.connect(API_URL + ":5001");
     socket.on("vote_update", (voteUpdate) => {
         console.log("Received vote update:", voteUpdate);
-        // Update the UI with the received vote update
+        const parsedVoteUpdate = JSON.parse(voteUpdate);
+        updateVoteCount(parsedVoteUpdate.option, parsedVoteUpdate.count);
     });
 
+
+    function updateVoteCount(optionId, newCount) {
+        const voteCountSpan = document.getElementById(`votes-${optionId}`);
+        if (voteCountSpan) {
+            voteCountSpan.textContent = newCount;
+        }
+    }
+
     function submitVote(option) {
-            fetch(API_URL + ":5000/votes", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ option: option })
-            })
+        fetch(API_URL + ":5001/votes", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({option: option})
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -43,10 +54,10 @@
             .catch(error => {
                 console.error('Error submitting vote:', error);
             });
-        }
+    }
 
     async function fetchOptions() {
-        const response = await fetch(API_URL + ':5000/votes');
+        const response = await fetch(API_URL + ':5001/votes');
         const options = await response.json();
         const optionsContainer = document.getElementById('options');
 
