@@ -38,7 +38,7 @@ def submit_vote():
     if not doc.exists:
         return jsonify({"status": "error", "message": "Vote option not found"}), 404
 
-    client_ip = request.remote_addr
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     ip_api_url = f'http://ip-api.com/json/{client_ip}'
     response = requests.get(ip_api_url).json()
     client_timezone = response['timezone'] if response['status'] == 'success' else 'Unknown'
@@ -111,8 +111,9 @@ def get_votes():
 
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5001))
     listener_thread = threading.Thread(target=subscribe_to_vote_updates, daemon=True)
     listener_thread.start()
     # Remove the following line
     # app.run(debug=True)
-    socketio.run(app, host="0.0.0.0", port=5001, allow_unsafe_werkzeug=True)
+    socketio.run(app, host="0.0.0.0", port=port, allow_unsafe_werkzeug=True)

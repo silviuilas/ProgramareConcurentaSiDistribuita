@@ -19,8 +19,9 @@
 <h1>Vote for your favorite option:</h1>
 <div id="options"></div>
 <script>
-    const API_URL = "http://127.0.0.1"
-    const socket = io.connect(API_URL + ":5001");
+    const API_URL = "https://flask-app-lrjz7gfh4q-lm.a.run.app"
+    const APP_PORT = "443"
+    const socket = io.connect(API_URL + ":" + APP_PORT);
     socket.on("vote_update", (voteUpdate) => {
         console.log("Received vote update:", voteUpdate);
         const parsedVoteUpdate = JSON.parse(voteUpdate);
@@ -36,7 +37,7 @@
     }
 
     function submitVote(option) {
-        fetch(API_URL + ":5001/votes", {
+        fetch(API_URL + ":" + APP_PORT + "/votes", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -57,7 +58,7 @@
     }
 
     async function fetchOptions() {
-        const response = await fetch(API_URL + ':5001/votes');
+        const response = await fetch(API_URL + ':' + APP_PORT + '/votes');
         const options = await response.json();
         const optionsContainer = document.getElementById('options');
 
