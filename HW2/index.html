@@ -1,46 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real-time Voting Application</title>
-  <style>
-    .option {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <title>Real-time Voting Application</title>
+    <style>
+        .option {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Vote for your favorite option:</h1>
-  <div id="options"></div>
-  <script>
-    async function fetchOptions() {
-      const response = await fetch('http://127.0.0.1:5000/votes');
-      const options = await response.json();
-      const optionsContainer = document.getElementById('options');
+<h1>Vote for your favorite option:</h1>
+<div id="options"></div>
+<script>
+    const API_URL = "http://127.0.0.1"
+    const socket = io.connect(API_URL + ":5001");
+    socket.on("vote_update", (voteUpdate) => {
+        console.log("Received vote update:", voteUpdate);
+        // Update the UI with the received vote update
+    });
 
-      options.forEach(option => {
-        const { id, name, votes } = option;
-        const optionDiv = document.createElement('div');
-        optionDiv.className = 'option';
-        optionDiv.innerHTML = `
+    function submitVote(option) {
+            fetch(API_URL + ":5000/votes", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ option: option })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Vote submitted successfully');
+                } else {
+                    console.error('Failed to submit vote:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting vote:', error);
+            });
+        }
+
+    async function fetchOptions() {
+        const response = await fetch(API_URL + ':5000/votes');
+        const options = await response.json();
+        const optionsContainer = document.getElementById('options');
+
+        options.forEach(option => {
+            const {id, name, votes} = option;
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'option';
+            optionDiv.innerHTML = `
           <span>${name}</span>
           <button onclick="submitVote('${id}')">Vote (current: <span id="votes-${id}">${votes}</span>)</button>
         `;
-        optionsContainer.appendChild(optionDiv);
-      });
-    }
-
-    async function submitVote(optionId) {
-      // Mock a submitted vote and update the frontend
-      const votesElement = document.getElementById(`votes-${optionId}`);
-      const currentVotes = parseInt(votesElement.textContent);
-      votesElement.textContent = currentVotes + 1;
+            optionsContainer.appendChild(optionDiv);
+        });
     }
 
     fetchOptions();
-  </script>
+</script>
 </body>
 </html>
