@@ -1,0 +1,14 @@
+{
+    "name": "sample-http",
+    "version": "0.0.1",
+    "dependencies": {
+      "firebase-admin": "^11.5.0",
+      "fs": "^0.0.1-security",
+      "@google-cloud/dataproc": "^4.4.0",
+      "json2csv": "^6.0.0-alpha.2",
+      "os": "^0.1.2",
+      "path": "^0.12.7",
+      "uuid": "^9.0.0"
+    }
+  }
+  
