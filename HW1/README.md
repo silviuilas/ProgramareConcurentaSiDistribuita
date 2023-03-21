@@ -38,17 +38,15 @@ In terms of the options for the client/server, the program allows for the follow
 * The program implements both streaming and stop-and-wait mechanisms, with the latter performing an acknowledgement before sending the next message.
 
 
-![Transmission Time by Mechanism Used](Transmission Time by Mechanism Used.png)
+![Transmission Time by Mechanism Used](https://storage.googleapis.com/voting-app-uaic-website/silviu/Transmission%20Time%20by%20Mechanism%20Used.png)
 
-![Transmission Time by Message Size and Mechanism Used](Transmission Time by Message Size_Mechanism Used.png)
+![Transmission Time by Message Size and Mechanism Used](https://storage.googleapis.com/voting-app-uaic-website/silviu/Transmission%20Time%20by%20Message%20Size_Mechanism%20Used.png)
 
-![Transmission Time by Message Size and Mechanism Used](Transmission Time by Message Size_Protocol.png)
+![Transmission Time by Message Size and Protocol Used](https://storage.googleapis.com/voting-app-uaic-website/silviu/Transmission%20Time%20by%20Message%20Size_Protocol.png)
 
-![Transmission Time by Buffer Size and Mechanism Used](Transmission Time by Buffer Size_Mechanism Used.png)
+![Transmission Time by Buffer Size and Mechanism Used](https://storage.googleapis.com/voting-app-uaic-website/silviu/Transmission%20Time%20by%20Buffer%20Size_Mechanism%20Used.png)
 
-![Transmission Time by Buffer Size and Mechanism Used](Transmission Time by Buffer Size_Protocol.png)
-
-![Transmission Time by Message Size and Mechanism Used](Number of Bytes Sent by Protocol Used.png)
+![Transmission Time by Buffer Size and Mechanism Used](https://storage.googleapis.com/voting-app-uaic-website/silviu/Transmission%20Time%20by%20Buffer%20Size_Protocol.png)
 
 ## Conclusion
 
