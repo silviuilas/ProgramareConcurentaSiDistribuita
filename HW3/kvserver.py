@@ -2,6 +2,8 @@
 from __future__ import print_function
 
 import sys
+import json
+
 try:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 except ImportError:
@@ -29,6 +31,9 @@ class KVStorage(SyncObj):
     def get(self, key):
         return self.__data.get(key, None)
 
+    def get_all(self):
+        return self.__data
+
     def get_leader(self):
         return self._getLeader()
 
@@ -38,13 +43,20 @@ _g_kvstorage = None
 class KVRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
-            value = _g_kvstorage.get(self.path)
-            if value is None:
-                self.send_response(404)
-                self.send_header("Content-type", "text/plain")
+            path = self.path
+            if path == '/':
+                data = _g_kvstorage.get_all()
+
+                json_data = json.dumps(data)
+
+                self.send_response(200)
+                self.send_header("Content-type", "text/json")
                 self.end_headers()
+
+                self.wfile.write(json_data.encode('utf-8'))
                 return
 
+            value = _g_kvstorage.get(path)
             self.send_response(200)
             self.send_header("Content-type", "text/plain")
             self.end_headers()
