@@ -53,8 +53,18 @@ export class GameBoardComponent implements OnInit, AfterViewInit {
   
   showScores() {
     this.http.get<any>('http://localho.st:8077/').subscribe(data => {
-      this.scores = data;
-      this.showScore = true;
+    var builder = [];
+    for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+            builder.push( [ key, data[key] ] );
+        }
+    }
+    
+    builder.sort(function(first:any, second:any){return second[1] - first[1]});
+    
+    this.scores = builder;
+    this.showScore = true;
+
     }); 
   }
 

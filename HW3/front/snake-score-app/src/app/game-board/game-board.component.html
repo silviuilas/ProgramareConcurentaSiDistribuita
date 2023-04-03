@@ -26,8 +26,8 @@
 
     <div *ngIf="showScore" class="score-list">
       <h2>Score table</h2>
-      <h3 *ngFor="let playerName of Object.keys(scores)">
-        {{ playerName.substring(1).charAt(0).toUpperCase() + playerName.slice(2) }}  |  {{scores[playerName]}}
+      <h3 *ngFor="let player of scores">
+        {{ player[0].substring(1).charAt(0).toUpperCase() + player[0].slice(2) }}  |  {{player[1]}}
       </h3>
 
     <div class="restart-button" *ngIf="showScore" (click)="hideScores()">
