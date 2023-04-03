@@ -1,0 +1,115 @@
+
+
+
+.container {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+  
+    .score-card {
+      padding: 20px;
+      color: var(--board-color);
+      display: flex;
+      justify-content: space-around;
+      align-content: space-around;
+      flex-direction: row;
+      align-items: center;
+  
+      .score-board{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: column;
+        margin-right: 2em;
+
+        .form-class {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-direction: row;
+          margin-right: 2em;
+          
+          span {
+            font-size: large;
+            margin-right: 1em;
+          }
+        }
+        
+        .score-list{
+          padding: 1em 5em;
+          border-radius: 25px;
+          background:rgba(0, 0, 0, 0.386);
+        }
+      }
+
+      .restart-button{
+        margin: 1em;
+        padding: 10px 20px;
+        color: var(--background-color);
+        border-radius: 20px;
+        height: 40px;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--board-color);
+        cursor: pointer;
+        z-index: 99;
+      }
+    }
+  
+    .game-board {
+      background-color: var(--board-color);
+      width: 100vmin;
+      height: 100vmin;
+      display: grid;
+      align-self: center;
+      grid-template-rows: repeat(21, 1fr);
+      grid-template-columns: repeat(21, 1fr);
+  
+      &.blur {
+        filter: blur(4px);
+      }
+    }
+  
+  }
+  
+  .game-over{
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    color: var(--snake-color);
+    z-index: 1;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+  
+    h1 {
+      font-size: 3em;
+    }
+  
+  }
+  
+  // Ipads and Mobiles
+  @media only screen and (max-width: 1025px) {
+    .container {
+      flex-direction: column;
+  
+      .score-card {
+        flex-direction: row !important;
+      }
+    }
+    .mobile-controls{
+      margin-top: 10px;
+      display: flex !important;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+  
+  }
+  

@@ -34,6 +34,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     data = response.text
                     self.send_response(200)
                     self.send_header("Content-type", "text/plain")
+                    self.send_header('Access-Control-Allow-Origin', '*')
                     self.end_headers()
                     self.wfile.write(("Score: %s" %data).encode('utf-8'))
                     print(data)
@@ -55,6 +56,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     data = json.dumps(response.json())
                     self.send_response(200)
                     self.send_header("Content-type", "application/json")
+                    self.send_header('Access-Control-Allow-Origin', '*')
                     self.end_headers()
                     self.wfile.write(data.encode('utf-8'))
                     print(data)
@@ -63,7 +65,15 @@ class RequestHandler(BaseHTTPRequestHandler):
                     continue
             except requests.exceptions.RequestException as e:
                 continue
-        
+
+    
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', '*')
+        self.send_header('Access-Control-Allow-Methods', '*')
+        self.end_headers()
+
     def do_POST(self):
         parsed_url = urlparse(self.path)
         query_params = parse_qs(parsed_url.query)
@@ -83,9 +93,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                 if response.status_code == 201:
                     data = response.text
                     self.send_response(201)
-                    self.send_header("Content-type", "text/plain")
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header("Content-type", "application/json")
                     self.end_headers()
-                    self.wfile.write(("Created").encode('utf-8'))
+                    self.wfile.write(json.dumps({"result": "created"}).encode('utf-8'))
                     print(data)
                     break
                 else:
@@ -93,8 +104,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             except requests.exceptions.RequestException as e:
                 continue
 
+
 if __name__ == '__main__':
     random.shuffle(servers)  
-    server = HTTPServer(('localhost', 8080), RequestHandler)
+    server = HTTPServer(('localhost', 8077), RequestHandler)
     print("Starting load balancer on http://%s:%d" % server.server_address)
     server.serve_forever()

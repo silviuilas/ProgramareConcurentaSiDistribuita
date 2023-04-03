@@ -1,0 +1,50 @@
+
+<div class="container">
+
+  <div class="score-card">
+    <div class="score-board">
+      <h1>Score</h1>
+      <h3>{{food?.currentScore}}</h3>
+
+    <form class="form-class">
+      <span>Player Name:</span>
+      <input required [(ngModel)]="playerName" name="playerName" id="playerName">
+    </form>
+
+    <div class="restart-button"  *ngIf="gameOver" (click)="restart()">
+      RESTART
+    </div>
+   
+
+    <div class="restart-button" *ngIf="gameOver" (click)="saveScore()">
+      SAVE SCORE
+    </div>
+
+    <div class="restart-button" (click)="showScores()">
+        SHOW ALL SCORES
+    </div>
+
+    <div *ngIf="showScore" class="score-list">
+      <h2>Score table</h2>
+      <h3 *ngFor="let playerName of Object.keys(scores)">
+        {{ playerName.substring(1).charAt(0).toUpperCase() + playerName.slice(2) }}  |  {{scores[playerName]}}
+      </h3>
+
+    <div class="restart-button" *ngIf="showScore" (click)="hideScores()">
+        Hide scores
+    </div>
+
+  </div>
+
+  </div>
+  <div class="game-board">
+
+
+  </div>
+
+  <div class="game-over" *ngIf="gameOver">
+    <h1>Game Over</h1>
+  </div>
+
+
+</div>
