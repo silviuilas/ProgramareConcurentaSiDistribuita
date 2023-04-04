@@ -39,11 +39,34 @@ class KVStorage(SyncObj):
 
 _g_kvstorage = None
 
+def handle_unserializable(obj):
+    try:
+        json.dumps(obj)
+    except TypeError:
+        return None
+    return obj
 
 class KVRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        if _g_kvstorage.get_leader() is None:
+            self.send_response(500)
+            self.send_header("Content-type", "text/json")
+            self.end_headers()
+            return
         try:
             path = self.path
+            if path == '/status':
+                status = _g_kvstorage.getStatus()
+                status['self'] = status['self'].address
+                status['leader'] = status['leader'].address
+                json_data = json.dumps(status, default=handle_unserializable)
+
+                self.send_response(200)
+                self.send_header("Content-type", "text/json")
+                self.end_headers()
+
+                self.wfile.write(json_data.encode('utf-8'))
+                return
             if path == '/':
                 data = _g_kvstorage.get_all()
 
@@ -67,6 +90,11 @@ class KVRequestHandler(BaseHTTPRequestHandler):
             pass
 
     def do_POST(self):
+        if _g_kvstorage.get_leader() is None:
+            self.send_response(500)
+            self.send_header("Content-type", "text/json")
+            self.end_headers()
+            return
         try:
             key = self.path
             value = self.rfile.read(int(self.headers.get('content-length'))).decode('utf-8')

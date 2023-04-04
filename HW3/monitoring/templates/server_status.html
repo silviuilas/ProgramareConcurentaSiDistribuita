@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Server Status</title>
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Server Status</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Server</th>
+        <th>Leader</th>
+        <th>Log Length</th>
+        <th>Last Applied</th>
+        <th>Commit Index</th>
+        <th>Leader Commit Index</th>
+        <th>Raft Term</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for server in data %}
+      <tr>
+        <td>{{ server['self'] }}</td>
+        <td>{{ server['leader'] }}</td>
+        <td>{{ server['log_len'] }}</td>
+        <td>{{ server['last_applied'] }}</td>
+        <td>{{ server['commit_idx'] }}</td>
+        <td>{{ server['leader_commit_idx'] }}</td>
+        <td>{{ server['raft_term'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
