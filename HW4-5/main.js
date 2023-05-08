@@ -6,13 +6,13 @@ const resolver = openDSU.loadApi("resolver");
 const keyssispace = openDSU.loadApi("keyssi");
 
 async function authenticateUser(username) {
-    const templateSSI = keyssispace.createTemplateSeedSSI("default");
+    const userSSI = keyssispace.createTemplateSeedSSI("default", Buffer.from(username, 'hex'));
+    console.log(userSSI)
 
-    // Create or load user-specific DSU
     return new Promise((resolve, reject) => {
-        resolver.loadDSU(username, (err, dsu) => {
+        resolver.loadDSU(userSSI, (err, dsu) => {
             if (err) {
-                resolver.createDSU(templateSSI, (err, newDSU) => {
+                resolver.createDSU(userSSI, (err, newDSU) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -30,6 +30,31 @@ async function authenticateUser(username) {
             }
         });
     });
+}
+
+async function getReadOnlySSI(dsu) {
+    return new Promise((resolve, reject) => {
+        dsu.getKeySSIAsString((err, keySSI) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(keySSI);
+            }
+        });
+    });
+}
+
+async function readSharedWishlist(sharedSSI) {
+    const sharedDSU = await new Promise((resolve, reject) => {
+        resolver.loadDSU(sharedSSI, (err, dsu) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(dsu);
+            }
+        });
+    });
+    viewItems(sharedDSU);
 }
 
 function addItem(dsu, name, description, price, link) {
@@ -110,7 +135,7 @@ async function main() {
 }
 
 function handleCommands(dsu) {
-    rl.question("Enter command (add/view/mark/exit): ", (command) => {
+    rl.question("Enter command (add/view/mark/share/read/exit): ", async (command) => {
         switch (command) {
             case "add":
                 rl.question("Enter item name: ", (name) => {
@@ -130,6 +155,18 @@ function handleCommands(dsu) {
             case "mark":
                 rl.question("Enter the item index to mark as purchased: ", (itemIndex) => {
                     markItem(dsu, parseInt(itemIndex) - 1);
+                    handleCommands(dsu);
+                });
+                break;
+            case "share":
+                const readOnlySSI = await getReadOnlySSI(dsu);
+                console.log("Share this SSI with others to give them read access to your wishlist:", readOnlySSI);
+                handleCommands(dsu);
+                break;
+
+            case "read":
+                rl.question("Enter the shared SSI: ", async (sharedSSI) => {
+                    await readSharedWishlist(sharedSSI);
                     handleCommands(dsu);
                 });
                 break;
